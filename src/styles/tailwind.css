@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  /* Custom Apex Motors colors */
+  .bg-apex-light {
+    background-color: #E1E7F5;
+  }
+
+  .text-apex-light {
+    color: #E1E7F5;
+  }
+
+  .bg-apex-dark {
+    background-color: #BE4B6B;
+  }
+
+  .text-apex-dark {
+    color: #BE4B6B;
+  }
+
+  /* 3D Animation utilities */
+  @keyframes spin-slow {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .animate-spin-slow {
+    animation: spin-slow 10s linear infinite;
+  }
+
+  /* 3D perspective utilities */
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+}

@@ -1,0 +1,72 @@
+---
+import Layout from '../layouts/Layout.astro';
+import LogoShowcase from '../components/LogoShowcase.jsx';
+import '../styles/tailwind.css';
+---
+
+<Layout title="Apex Motors - Automotive Excellence">
+  <!-- Hero Section -->
+  <section class="relative w-full h-screen flex items-center justify-center overflow-hidden bg-black">
+    <!-- Animated Gradient Background -->
+    <div class="absolute inset-0 bg-gradient-to-br from-black via-purple-900/20 to-black">
+      <!-- Animated Stars -->
+      <div class="stars absolute"></div>
+    </div>
+
+    <!-- 3D Logo Showcase -->
+    <div class="relative z-10 w-96 h-96 md:w-[20rem] md:h-[20rem]">
+      <LogoShowcase />
+    </div>
+
+    <!-- Content -->
+    <div class="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-10 text-center">
+      <h1 class="text-6xl md:text-8xl font-bold text-white mb-6">
+        APEX
+        <span class="block text-3xl md:text-4xl text-apex-dark mt-2">MOTORS</span>
+      </h1>
+      <p class="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+        Experience automotive excellence with cutting-edge performance and stunning design
+      </p>
+      <button class="px-8 py-4 bg-apex-dark text-white font-semibold rounded-full hover:bg-apex-light transition-all duration-300 transform hover:scale-105">
+        Explore Our Collection
+      </button>
+    </div>
+  </section>
+
+  <style>
+    .stars {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      box-shadow:
+        0 0 2px rgba(255, 255, 255, 0.8),
+        50px 50px 2px rgba(255, 255, 255, 0.6),
+        100px 100px 2px rgba(255, 255, 255, 0.4),
+        150px 150px 2px rgba(255, 255, 255, 0.2),
+        200px 200px 2px rgba(255, 255, 255, 0.1),
+        250px 250px 2px rgba(255, 255, 255, 0.05),
+        300px 300px 2px rgba(255, 255, 255, 0.03),
+        350px 350px 2px rgba(255, 255, 255, 0.02);
+      animation: twinkle 3s infinite;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    @media (max-width: 768px) {
+      .stars {
+        background: transparent;
+        box-shadow:
+          0 0 1px rgba(255, 255, 255, 0.6),
+          25px 25px 1px rgba(255, 255, 255, 0.4),
+          50px 50px 1px rgba(255, 255, 255, 0.2),
+          75px 75px 1px rgba(255, 255, 255, 0.1);
+      }
+    }
+  </style>
+</Layout>
