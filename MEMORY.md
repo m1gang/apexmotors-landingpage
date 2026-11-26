@@ -1,0 +1,2 @@
+- [PRODUCT.md](PRODUCT.md) — Initial product context
+- [DESIGN.md](DESIGN.md) — Design system foundations
