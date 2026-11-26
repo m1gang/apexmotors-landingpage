@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-  /* Apex Motors — DESIGN.md */
+  /* Apex Motors — paleta primordial (DESIGN.md) */
   --color-apex-brand: #B83A5E;
-  --color-apex-accent: #BE4B6B;
+  --color-apex-light: #E1E7F5;
+  --color-apex-dark: #0B1215;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
