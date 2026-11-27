@@ -13,3 +13,22 @@
 html {
   scroll-behavior: smooth;
 }
+
+/* H2-b — modo exploración: atenuación del copy para dejar ver el motor */
+#hero[data-explore='on'] .apex-dim {
+  opacity: 0.15;
+}
+#hero[data-explore='on'] .apex-dim.apex-dim-nube {
+  opacity: 0.3;
+}
+#hero[data-explore='on'] .apex-hint {
+  opacity: 1;
+}
+
+/* reduced-motion: fundido instantáneo (cambia la opacidad, sin animarla) */
+@media (prefers-reduced-motion: reduce) {
+  .apex-dim,
+  .apex-hint {
+    transition: none;
+  }
+}

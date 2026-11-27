@@ -26,6 +26,29 @@
 
 **Orden de construcción propuesto (a confirmar al elegir):** H2 → H14 (Proceso, reutiliza el GLB) → H13 (Manifiesto) → H15 (Obras) → H5 → H6 (captions ES + typo `grouprelative`) → H7 (Footer) → H9 (momentos creativos transversales al final).
 
+## Refinamiento H2 — CTA: modo exploración del motor (opción A)
+
+**Historia:** Como visitante quiero un CTA principal en el hero que me lleve al modelo 3D para explorar el producto.
+
+**Decisión del Navigator (verbatim):** presentadas opciones A (modo exploración) / B (scroll a sección) / C (híbrido): "ok opcion A". El CTA "Descubrir la ingeniería" (hoy botón sin handler) entra en un modo exploración del 3D: pausa el despiece, acerca la cámara y atenúa el copy; el propio CTA pasa a "Salir de la exploración".
+
+**Arquitectura:** el estado lo posee un script vanilla en `index.astro` (patrón TotemNav): toggle + Escape + label/`aria-pressed` del botón; `Hero3D.jsx` solo escucha el evento `apex:explore` (CustomEvent en `window`) y aplica/libera. Un solo evento canónico sincroniza a ambos — el label del CTA reacciona a eventos que no originó (Escape desde el canvas, etc.).
+
+**Criterios de Aceptación:**
+- C1: Click en el CTA → la animación de despiece se **pausa** (se congela en el frame actual, no en origen) y la **cámara hace dolly-in** suave hacia el motor.
+- C2: El CTA cambia a "Salir de la exploración" con `aria-pressed="true"`; el copy (logo + h1) se atenúa en H2-b; aparece hint "arrastrá para girar" (H2-b).
+- C3: El drag para girar el modelo **sigue funcionando** dentro del modo exploración.
+- C4: `Escape` o click en "Salir de la exploración" liberan el modo: cámara vuelve, la animación **se reanuda donde estaba** (nunca desde cero), el copy vuelve.
+- C5: Con `prefers-reduced-motion: reduce` el cambio de cámara es directo (sin tween) y el resto del modo funciona igual.
+- C6: Teclado completo: el CTA es operable con Enter; tras Escape el foco vuelve al CTA; el modo se anuncia vía `aria-pressed`.
+- C7: Build pasa; verificación Playwright (desktop + teclado + táctil + reduced-motion) y capturas para el Navigator.
+
+**Plan Mínimo (micro-pasos):**
+- **H2-a** ✅ (implementada, esperando revisión del Navigator) — Pausa de la animación + dolly-in de cámara + toggle del CTA (label/aria-pressed) + Escape. Estado y eventos: script vanilla en `index.astro`; Hero3D reacciona a `apex:explore`. **Verificación (RED→GREEN):** check Playwright de 8 pruebas — T1 CTA inicial, T2 marker, T3 toggle ON, T4 frames idénticos (pausa probada por comparación de píxeles del canvas), T5 Escape reanuda (frames distintos), T6 teclado (Enter/Escape/foco), T7 móvil (tap/tap), T8 reduced-motion sin errores JS. **8/8 PASS** + build limpio (5.3s). Captura: `h2-explorando.png`. Nota de herramienta: T8 exigio reintento acotado bajo carga (3 páginas simultáneas); en página aislada el modo funciona al primer intento (sonda `h2diag.mjs`). Avisos preexistentes sin impacto: THREE.Clock deprecation (drei) y GPU stall por ReadPixels (del screenshot del propio Playwright).
+- **H2-b** ✅ (implementado, esperando revisión del Navigator) — Pulido del modo: atenuación del copy (logo + h1 + nube), hint "arrastrá para girar", fundidos coordinados. Estado visual vía `data-explore="on|off"` en `#hero` (sincronizado por `syncUI` junto al botón); reglas en `global.css` (`.apex-dim` 0.15, nube 0.3, `.apex-hint` 1), transiciones `opacity 700ms` + `transition: none` bajo reduced-motion; hint absoluto (cero layout shift). **Verificación (RED→GREEN):** `h2bcheck.mjs` 7 pruebas — T1 reposo pleno + hint oculto, T2 explorando (logo/h1 0.15, nube 0.3, hint 1, CTA pleno), T3 CTA sin moverse (Δ=0.00px), T4 Escape restaura todo, T5a fundido 0.7s en h1, T5b reduced-motion sin transición, T6 cero errores JS. **7/7 PASS** + regresión `h2check.mjs` **8/8** + build limpio (5.0s). Captura: `h2b-explorando.png`. Nota de herramienta: T7/T8 exigieron clicks/taps `force` + esperas por estado — bajo carga WebGL (3 páginas + screenshots de canvas) los checks de accionabilidad de Playwright se quedan sin frames y tragan el input; la estabilidad del botón quedó probada (Δpos 0.00px, sonda aislada al primer intento).
+
+**Out of Scope:** hotspots/etiquetas de piezas en el modo exploración (idea para H9); scroll a secciones (el CTA secundario "Ver el proceso ↓" se evaluará cuando exista H14); cambios de copy del CTA más allá del toggle.
+
 ## Sistema visual (fijado por Navigator)
 
 - **Colores primordiales (si o si):** `#B83A5E` (rosa de marca) · `#E1E7F5` (claro) · `#0B1215` (fondo oscuro). Nada de negro puro ni blanco puro: el oscuro es `#0B1215` y el claro es `#E1E7F5`.
@@ -37,7 +60,7 @@
 | # | Historia | Estado |
 |---|----------|--------|
 | H1 | Como visitante quiero ver el logo de la marca y una propuesta de valor clara en español en el hero para entender en segundos qué es Apex Motors. | ✅ commit `0e0a527` (pendiente: wordmark con fuente 'Dodger' sin vectorizar) |
-| H2 | Como visitante quiero un CTA principal en el hero que me lleve al modelo 3D para explorar el producto. | ⬜ |
+| H2 | Como visitante quiero un CTA principal en el hero que me lleve al modelo 3D para explorar el producto. | 🔄 en refinamiento/implementación (opción A: modo exploración) |
 | H3 | Como visitante quiero ver un modelo 3D (un motor u objeto del rubro automotriz) en el hero que reaccione al mouse para sentir la precisión técnica de la marca. | ✅ aprobada por el Navigator — hero 3D completo: GLB provisto, despiece animado, giro con drag, metal con colores originales, legibilidad nube+halos (primer avance) |
 | H4 | Como visitante quiero cambiar el color del modelo 3D para ver el producto en mis variantes preferidas. | ⬜ |
 | H5 | Como visitante quiero dejar mis datos en un formulario para que el equipo me contacte. | ⬜ (destino de leads por definir) |

@@ -7,6 +7,7 @@ import Hero3D from "../components/Hero3D";
 <Layout title="Apex Motors - Ingeniería de Precisión">
   <section
     id="hero"
+    data-explore="off"
     class="relative flex min-h-dvh cursor-grab touch-pan-y select-none flex-col items-center justify-center overflow-hidden bg-apex-dark px-6 text-apex-light active:cursor-grabbing"
   >
     <!-- Motor 3D: fondo centrado, decorativo; el drag-to-spin se maneja a nivel de sección -->
@@ -17,25 +18,36 @@ import Hero3D from "../components/Hero3D";
     <div class="relative z-10 flex max-w-3xl flex-col items-center">
       <!-- nube de legibilidad: re-agregada por decisión del Navigator ("como estaba antes") -->
       <div
-        class="pointer-events-none absolute -inset-x-6 -inset-y-10 -z-10 rounded-[50%] bg-apex-dark/70 blur-2xl md:-inset-x-12 md:-inset-y-14"
+        class="apex-dim apex-dim-nube pointer-events-none absolute -inset-x-6 -inset-y-10 -z-10 rounded-[50%] bg-apex-dark/70 blur-2xl transition-opacity duration-700 md:-inset-x-12 md:-inset-y-14"
         aria-hidden="true"
       ></div>
       <LogoApex
-        class="mb-14 h-auto w-60 [filter:drop-shadow(0_2px_6px_rgba(11,18,21,0.95))_drop-shadow(0_0_24px_rgba(11,18,21,0.8))] sm:w-72 md:w-80"
+        class="apex-dim mb-14 h-auto w-60 transition-opacity duration-700 [filter:drop-shadow(0_2px_6px_rgba(11,18,21,0.95))_drop-shadow(0_0_24px_rgba(11,18,21,0.8))] sm:w-72 md:w-80"
         role="img"
         aria-label="Apex Motors"
       />
 
-      <h1 class="text-balance text-center text-2xl font-display leading-[1.2] [text-shadow:0_1px_2px_rgba(11,18,21,0.95),0_0_18px_rgba(11,18,21,0.85),0_0_42px_rgba(11,18,21,0.7)] sm:text-4xl md:text-5xl">
+      <h1 class="apex-dim text-balance text-center text-2xl font-display leading-[1.2] transition-opacity duration-700 [text-shadow:0_1px_2px_rgba(11,18,21,0.95),0_0_18px_rgba(11,18,21,0.85),0_0_42px_rgba(11,18,21,0.7)] sm:text-4xl md:text-5xl">
         El rendimiento automotriz en su forma más pura.
       </h1>
 
       <button
+        id="cta-explorar"
         type="button"
+        aria-pressed="false"
         class="mt-10 cursor-pointer border border-apex-light/40 bg-apex-dark/70 px-8 py-3 font-aux font-medium text-[10px] uppercase tracking-widest backdrop-blur-md transition-colors duration-300 hover:border-apex-brand hover:bg-apex-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-apex-brand md:text-xs"
       >
         Descubrir la ingeniería
       </button>
+
+      <!-- H2-b: hint del modo exploración; absoluto para no mover el layout -->
+      <p
+        id="explore-hint"
+        aria-hidden="true"
+        class="apex-hint pointer-events-none absolute left-1/2 top-full mt-5 -translate-x-1/2 whitespace-nowrap font-aux text-[10px] uppercase tracking-widest text-apex-light/70 opacity-0 transition-opacity duration-700"
+      >
+        Arrastrá para girar el motor
+      </p>
     </div>
   </section>
 
@@ -104,4 +116,44 @@ import Hero3D from "../components/Hero3D";
       </div>
     </div>
   </section>
+
+  <script>
+    // H2-a/H2-b: modo exploración del motor (opción A aprobada por el Navigator).
+    // El estado vive en la página (patrón TotemNav); Hero3D solo reacciona al
+    // evento `apex:explore`. window.__apexExploreState persiste para que la
+    // escena (client:only, monta tarde) haga catch-up si el CTA la precedió.
+    const LABEL_BASE = 'Descubrir la ingeniería'
+    const LABEL_SALIR = 'Salir de la exploración'
+    const btn = document.getElementById('cta-explorar')
+    const hero = document.getElementById('hero')
+    const hint = document.getElementById('explore-hint')
+
+    // único punto de sincronización de UI: botón, atenuación del copy y hint
+    function syncUI(active) {
+      if (btn) {
+        btn.textContent = active ? LABEL_SALIR : LABEL_BASE
+        btn.setAttribute('aria-pressed', String(active))
+      }
+      hero?.setAttribute('data-explore', active ? 'on' : 'off')
+      hint?.setAttribute('aria-hidden', String(!active))
+    }
+
+    // la UI se sincroniza con cualquier cambio del modo (el propio o de terceros)
+    window.addEventListener('apex:explore', (e) => syncUI(Boolean(e.detail?.active)))
+
+    btn?.addEventListener('click', () => {
+      const active = btn.getAttribute('aria-pressed') !== 'true'
+      window.__apexExploreState = active
+      window.dispatchEvent(new CustomEvent('apex:explore', { detail: { active } }))
+    })
+
+    // Escape libera el modo y devuelve el foco al CTA
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && window.__apexExploreState) {
+        window.__apexExploreState = false
+        window.dispatchEvent(new CustomEvent('apex:explore', { detail: { active: false } }))
+        btn?.focus()
+      }
+    })
+  </script>
 </Layout>

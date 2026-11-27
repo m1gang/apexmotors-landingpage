@@ -1,14 +1,53 @@
-import { Suspense, useEffect, useMemo, useRef } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Center, Environment, Lightformer, useAnimations, useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 
 const MODEL_URL = '/models/v8_engine.glb'
 
+// Cámara: pose por defecto del hero y pose acercada del modo exploración (H2-a)
+const CAM_DEFAULT = [1.6, 0.6, 4.5]
+const CAM_EXPLORE = [1.15, 0.5, 3.3]
+
+// Dolly-in/out de cámara del modo exploración. Sin OrbitControls: la cámara
+// es estática, así que el tween actualiza posición Y lookAt en cada frame.
+// Con prefers-reduced-motion el cambio es directo, sin tween.
+function ExploreRig({ explore }) {
+  const camera = useThree((s) => s.camera)
+  const tween = useRef(null)
+
+  useEffect(() => {
+    const target = explore ? CAM_EXPLORE : CAM_DEFAULT
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      tween.current = null
+      camera.position.set(target[0], target[1], target[2])
+      camera.lookAt(0, 0, 0)
+      return
+    }
+    tween.current = {
+      from: camera.position.clone(),
+      to: new THREE.Vector3(target[0], target[1], target[2]),
+      start: performance.now(),
+    }
+  }, [explore, camera])
+
+  useFrame(() => {
+    const t = tween.current
+    if (!t) return
+    const p = Math.min((performance.now() - t.start) / 900, 1)
+    const e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2
+    camera.position.lerpVectors(t.from, t.to, e)
+    camera.lookAt(0, 0, 0)
+    if (p >= 1) tween.current = null
+  })
+
+  return null
+}
+
 // Auto-centers and scales any GLB to a consistent size (bounding-box fit),
 // so swapping the placeholder for a definitive model needs no manual tuning.
 // Also plays the embedded animation clip (baked exploded-view loop).
-function FittedModel({ url, targetSize = 3.6 }) {
+function FittedModel({ url, targetSize = 3.6, explore = false }) {
   const { scene, animations } = useGLTF(url)
   const group = useRef()
   const { actions } = useAnimations(animations, group)
@@ -46,6 +85,13 @@ function FittedModel({ url, targetSize = 3.6 }) {
   useEffect(() => {
     actions[animations[0]?.name]?.play()
   }, [actions, animations])
+
+  // Modo exploración (H2-a): pausa el despiece en el frame actual;
+  // al salir, la animación se reanuda desde donde quedó (nunca desde cero).
+  useEffect(() => {
+    const action = actions[animations[0]?.name]
+    if (action) action.paused = explore
+  }, [actions, animations, explore])
 
   // El drag se bindea a la sección del hero (id="hero") para que también
   // funcione arrastrando sobre el texto; click simple (sin mover) no gira.
@@ -115,10 +161,26 @@ function FittedModel({ url, targetSize = 3.6 }) {
 }
 
 export default function Hero3D() {
+  const [explore, setExplore] = useState(false)
+
+  // El CTA (script de index.astro) es la fuente del modo; la escena solo reacciona.
+  useEffect(() => {
+    const onExplore = (e) => setExplore(Boolean(e.detail?.active))
+    window.addEventListener('apex:explore', onExplore)
+    // catch-up: el modo pudo activarse antes de que la escena montara
+    if (window.__apexExploreState) setExplore(true)
+    return () => window.removeEventListener('apex:explore', onExplore)
+  }, [])
+
+  // marker de verificación: la escena YA está en modo exploración
+  useEffect(() => {
+    window.__apexExplore = explore
+  }, [explore])
+
   return (
     <Canvas
       dpr={[1, 2]}
-      camera={{ position: [1.6, 0.6, 4.5], fov: 38 }}
+      camera={{ position: CAM_DEFAULT, fov: 38 }}
       gl={{ antialias: true, alpha: true, toneMappingExposure: 1.1 }}
       style={{ background: 'transparent' }}
     >
@@ -141,8 +203,9 @@ export default function Hero3D() {
         color="#B83A5E"
       />
       <Suspense fallback={null}>
-        <FittedModel url={MODEL_URL} />
+        <FittedModel url={MODEL_URL} explore={explore} />
       </Suspense>
+      <ExploreRig explore={explore} />
       {/* estudio generado en escena: sin dependencias de CDN externo */}
       <Environment resolution={64}>
         <Lightformer
