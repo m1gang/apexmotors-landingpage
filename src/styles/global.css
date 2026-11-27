@@ -5,5 +5,11 @@
   --color-apex-brand: #B83A5E;
   --color-apex-light: #E1E7F5;
   --color-apex-dark: #0B1215;
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Exo 2", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Zen Dots", "Exo 2", ui-sans-serif, system-ui, sans-serif;
+  --font-aux: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
 }

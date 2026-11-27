@@ -1,0 +1,485 @@
+---
+/**
+ * TotemNav — floating pill navigation.
+ *
+ * Closed state: a single logo pill glued to one screen edge. On hover,
+ * keyboard focus or tap it expands vertically with a spring, revealing up
+ * to 5 icon links. Hovering a link shows its label as a small pill that
+ * slides in toward the page center.
+ *
+ * Theming goes through --totem-* custom properties so colors, margin and
+ * size can be overridden from the outside without touching this file.
+ */
+export interface NavItem {
+  label: string;
+  href: string;
+  /** Route to an image/SVG file ("/icons/x.svg") or an inline "<svg …>" string. */
+  icon: string;
+}
+
+export interface Props {
+  logo: string;
+  logoAlt?: string;
+  /** If set (e.g. "/"), the logo button navigates there on click. */
+  logoHref?: string;
+  /** Hover label beside the logo (e.g. "Inicio"); also its aria-label. */
+  logoLabel?: string;
+  /** Maximum 5; extras are ignored (warned in dev). */
+  items: NavItem[];
+  /** Screen edge the pill sticks to. Default: left. */
+  side?: "left" | "right";
+  /** Pill background color. */
+  fill?: string;
+  /** Icon-circle background on hover. */
+  hoverBg?: string;
+  /** 1px border color of the pill, icon circles and labels. */
+  border?: string;
+  labelColor?: string;
+  labelBg?: string;
+  /** Distance from the screen edge, in px. Default: 24. */
+  margin?: number;
+}
+
+const {
+  logo,
+  logoAlt = "",
+  logoHref,
+  logoLabel,
+  items,
+  side = "left",
+  fill = "rgba(11, 18, 21, 0.94)",
+  hoverBg = "#B83A5E",
+  border = "rgba(225, 231, 245, 0.25)",
+  labelColor = "#E1E7F5",
+  labelBg = "rgba(11, 18, 21, 0.94)",
+  margin = 24,
+} = Astro.props;
+
+// Hard cap at 5 items; warn in dev so content drift is visible early.
+const list = items.slice(0, 5);
+if (import.meta.env.DEV && items.length > 5) {
+  console.warn(`[TotemNav] ${items.length} items received; showing the first 5.`);
+}
+
+const currentPath = Astro.url.pathname.replace(/\/+$/, "") || "/";
+
+const cssVars = [
+  `--totem-fill:${fill}`,
+  `--totem-hover:${hoverBg}`,
+  `--totem-border:${border}`,
+  `--totem-label-color:${labelColor}`,
+  `--totem-label-bg:${labelBg}`,
+  `--totem-margin:${margin}px`,
+  `--totem-count:${list.length}`,
+].join(";");
+---
+
+<nav
+  class="totem"
+  data-totem-nav
+  data-side={side}
+  style={cssVars}
+  aria-label="Navegación principal"
+>
+  <div class="totem__pill">
+    <button
+      type="button"
+      class="totem__trigger"
+      data-totem-trigger
+      data-totem-href={logoHref}
+      aria-expanded="false"
+      aria-controls="totem-menu"
+      aria-label={logoLabel}
+      aria-current={logoHref === currentPath ? "page" : undefined}
+    >
+      <img src={logo} alt={logoAlt} width="40" height="40" decoding="async" />
+      {logoLabel && <span class="label">{logoLabel}</span>}
+    </button>
+
+    <ul class="totem__menu" id="totem-menu">
+      {
+        list.map((item, index) => (
+          <li class="totem__item" style={`--i:${index}`}>
+            <a
+              href={item.href}
+              class="totem__link"
+              aria-label={item.label}
+              aria-current={item.href === currentPath ? "page" : undefined}
+            >
+              {item.icon.startsWith("<svg") ? (
+                <span
+                  class="totem__icon totem__icon--inline"
+                  aria-hidden="true"
+                  set:html={item.icon}
+                />
+              ) : (
+                <img
+                  class="totem__icon"
+                  src={item.icon}
+                  alt=""
+                  aria-hidden="true"
+                  width="20"
+                  height="20"
+                  loading="lazy"
+                  decoding="async"
+                />
+              )}
+              <span class="label">{item.label}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</nav>
+
+<style>
+  /* ---------- Positioning ---------- */
+  .totem {
+    position: fixed;
+    top: 50%;
+    translate: 0 -50%;
+    z-index: 1000;
+    /* Fallback spring (no linear() support). */
+    --totem-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .totem[data-side="left"] {
+    left: var(--totem-margin);
+  }
+  .totem[data-side="right"] {
+    right: var(--totem-margin);
+  }
+
+  /* Spring with a slight bounce, where linear() is supported. */
+  @supports (transition-timing-function: linear(0, 1)) {
+    .totem {
+      --totem-spring: linear(
+        0,
+        0.06 10%,
+        0.25 20%,
+        0.48 30%,
+        0.7 40%,
+        0.88 50%,
+        0.98 60%,
+        1.03 70%,
+        1.035 76%,
+        1.015 84%,
+        0.99 92%,
+        1 100%
+      );
+    }
+  }
+
+  /* ---------- The pill ---------- */
+  .totem__pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: var(--totem-size, 56px);
+    padding: 6px;
+    background: var(--totem-fill);
+    border: 1px solid var(--totem-border);
+    border-radius: 999px;
+    box-shadow: 0 10px 30px rgba(11, 18, 21, 0.45);
+  }
+
+  .totem__trigger {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    cursor: pointer;
+    /* Same motion as the icon links so every button feels identical. */
+    transition:
+      background-color 200ms ease,
+      scale 200ms ease;
+  }
+  .totem__trigger[aria-current="page"] {
+    box-shadow: inset 0 0 0 1px var(--totem-hover);
+  }
+  .totem__trigger img {
+    /* Same size as the nav icons so the isotipo reads as one of them. */
+    display: block;
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+  }
+  .totem__trigger:hover,
+  .totem__trigger:focus-visible {
+    background: var(--totem-hover);
+    scale: 1.05;
+  }
+  .totem__trigger:focus-visible,
+  .totem__link:focus-visible {
+    outline: 2px solid var(--totem-hover);
+    outline-offset: 2px;
+  }
+
+  /* ---------- Icon stack (opens downward) ---------- */
+  .totem__menu {
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    max-height: 0;
+    opacity: 0;
+    /* Clip the vertical collapse (like overflow:hidden would) but let the
+       hover labels paint outside the menu box on both sides. */
+    clip-path: inset(0 -160px 0 -160px);
+    visibility: hidden;
+    margin-top: 0;
+    /* Close fast: no cascade delay, visibility flips after the collapse. */
+    transition:
+      max-height 450ms var(--totem-spring),
+      margin-top 450ms var(--totem-spring),
+      opacity 250ms ease,
+      visibility 0s linear 450ms;
+  }
+  /* Desktop openers: hover + focus-within (hover-capable devices only).
+     On touch the class .is-open (set by the tap toggle in JS) is the only
+     driver, so synthetic mouse/focus events from the tap can't desync it. */
+  @media (hover: hover) {
+    .totem:hover .totem__menu,
+    .totem:focus-within .totem__menu {
+      max-height: calc(var(--totem-count) * 50px); /* 44px item + 6px gap */
+      margin-top: 6px;
+      opacity: 1;
+      visibility: visible;
+      transition:
+        max-height 450ms var(--totem-spring),
+        margin-top 450ms var(--totem-spring),
+        opacity 300ms ease 80ms,
+        visibility 0s;
+    }
+  }
+  .totem.is-open .totem__menu {
+    max-height: calc(var(--totem-count) * 50px); /* 44px item + 6px gap */
+    margin-top: 6px;
+    opacity: 1;
+    visibility: visible;
+    transition:
+      max-height 450ms var(--totem-spring),
+      margin-top 450ms var(--totem-spring),
+      opacity 300ms ease 80ms,
+      visibility 0s;
+  }
+
+  /* ---------- Cascade per item ---------- */
+  .totem__item {
+    opacity: 0;
+    translate: 0 -6px;
+    scale: 0.8;
+    transition:
+      opacity 200ms ease,
+      translate 200ms ease,
+      scale 200ms ease;
+    transition-delay: 0ms; /* closing is immediate */
+  }
+  @media (hover: hover) {
+    .totem:hover .totem__item,
+    .totem:focus-within .totem__item {
+      opacity: 1;
+      translate: 0 0;
+      scale: 1;
+      transition:
+        opacity 300ms ease,
+        translate 300ms var(--totem-spring),
+        scale 300ms var(--totem-spring);
+      /* Staggered entry: 120ms base + 40ms per index. */
+      transition-delay: calc(120ms + var(--i) * 40ms);
+    }
+  }
+  .totem.is-open .totem__item {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+    transition:
+      opacity 300ms ease,
+      translate 300ms var(--totem-spring),
+      scale 300ms var(--totem-spring);
+    transition-delay: calc(120ms + var(--i) * 40ms);
+  }
+
+  /* ---------- Icon circle ---------- */
+  .totem__link {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    transition:
+      background-color 200ms ease,
+      scale 200ms ease;
+  }
+  .totem__link:hover,
+  .totem__link:focus-visible {
+    background: var(--totem-hover);
+    scale: 1.05;
+  }
+  /* Subtle active-page marker. */
+  .totem__link[aria-current="page"] {
+    box-shadow: inset 0 0 0 1px var(--totem-hover);
+  }
+
+  .totem__icon {
+    display: block;
+    width: 20px;
+    height: 20px;
+  }
+  .totem__icon--inline {
+    display: grid;
+    place-items: center;
+  }
+  .totem__icon--inline :global(svg) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ---------- Label pill (slides toward page center) ---------- */
+  .label {
+    position: absolute;
+    top: 50%;
+    padding: 6px 12px;
+    border: 1px solid var(--totem-border);
+    border-radius: 999px;
+    background: var(--totem-label-bg);
+    color: var(--totem-label-color);
+    font-family: var(--font-aux, ui-monospace, "IBM Plex Mono", monospace);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 200ms ease,
+      translate 200ms ease;
+  }
+  /* side=left → label on the right of the pill, slides in from the left. */
+  .totem[data-side="left"] .label {
+    left: calc(100% + 12px);
+    translate: -8px -50%;
+  }
+  /* side=right → label on the left of the pill, slides in from the right. */
+  .totem[data-side="right"] .label {
+    right: calc(100% + 12px);
+    translate: 8px -50%;
+  }
+  /* Only the hovered (or keyboard-focused) button shows its name. */
+  .totem__trigger:hover .label,
+  .totem__trigger:focus-visible .label,
+  .totem__link:hover .label,
+  .totem__link:focus-visible .label {
+    opacity: 1;
+    translate: 0 -50%;
+  }
+
+  /* ---------- Touch devices ---------- */
+  /* No hover: labels stay hidden (aria-label carries the name), the logo
+     tap-toggles the menu, tapping outside closes it. */
+  @media (hover: none) {
+    .label {
+      display: none;
+    }
+  }
+
+  /* ---------- Reduced motion: short fade, no bounce, no cascade ---------- */
+  @media (prefers-reduced-motion: reduce) {
+    .totem__menu,
+    .totem__item,
+    .label {
+      transition-duration: 120ms;
+      transition-delay: 0ms;
+      transition-timing-function: ease;
+    }
+    .totem__item {
+      translate: 0 0;
+      scale: 1;
+    }
+  }
+</style>
+
+<script>
+  const nav = document.querySelector<HTMLElement>("[data-totem-nav]");
+  const trigger = nav?.querySelector<HTMLButtonElement>("[data-totem-trigger]");
+
+  if (nav && trigger) {
+    const isOpen = () => nav.classList.contains("is-open");
+    const setOpen = (open: boolean) => {
+      nav.classList.toggle("is-open", open);
+      trigger.setAttribute("aria-expanded", String(open));
+    };
+
+    // Desktop: hover/focus-within drive the CSS; JS keeps aria-expanded true.
+    const canHover = window.matchMedia("(hover: hover)");
+    if (canHover.matches) {
+      nav.addEventListener("mouseenter", () => setOpen(true));
+      // Don't close while focus is still inside (CSS keeps it open too).
+      nav.addEventListener("mouseleave", () => {
+        if (!nav.contains(document.activeElement)) setOpen(false);
+      });
+      nav.addEventListener("focusin", () => setOpen(true));
+      nav.addEventListener("focusout", () => {
+        // focusout also fires when focus moves within the nav; defer one frame.
+        requestAnimationFrame(() => {
+          if (!nav.contains(document.activeElement)) setOpen(false);
+        });
+      });
+    }
+
+    // Logo click = "home": on the current page it scrolls back to the hero
+    // (top) without reloading; on another page it navigates.
+    const logoHref = trigger.dataset.totemHref || "";
+    const goLogo = () => {
+      if (!logoHref) return false;
+      const target = new URL(logoHref, window.location.href);
+      if (target.pathname === window.location.pathname) {
+        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+        return true;
+      }
+      window.location.href = logoHref;
+      return false;
+    };
+
+    // Touch: tap the logo toggles (first tap), tap outside closes.
+    // On touch the second tap — menu open — goes home (scroll, no reload).
+    trigger.addEventListener("click", () => {
+      if (canHover.matches) {
+        goLogo();
+        // Don't let the click focus hold the menu open once the mouse leaves.
+        trigger.blur();
+        return;
+      }
+      if (isOpen()) {
+        goLogo(); // same page → scroll home; other page → navigate
+        setOpen(false);
+      } else {
+        setOpen(true);
+      }
+    });
+    document.addEventListener("pointerdown", (event) => {
+      if (isOpen() && !nav.contains(event.target as Node)) setOpen(false);
+    });
+
+    // Escape closes and returns focus to the logo.
+    document.addEventListener("keydown", (event) => {
+      if (
+        event.key === "Escape" &&
+        (isOpen() || nav.contains(document.activeElement))
+      ) {
+        setOpen(false);
+        trigger.focus();
+      }
+    });
+  }
+</script>

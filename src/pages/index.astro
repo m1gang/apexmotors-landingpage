@@ -17,23 +17,22 @@ import Hero3D from "../components/Hero3D";
     <div class="relative z-10 flex max-w-3xl flex-col items-center">
       <!-- nube de legibilidad: re-agregada por decisión del Navigator ("como estaba antes") -->
       <div
-        class="pointer-events-none absolute -inset-x-6 -inset-y-10 rounded-[50%] bg-apex-dark/70 blur-2xl md:-inset-x-12 md:-inset-y-14"
+        class="pointer-events-none absolute -inset-x-6 -inset-y-10 -z-10 rounded-[50%] bg-apex-dark/70 blur-2xl md:-inset-x-12 md:-inset-y-14"
         aria-hidden="true"
-      >
-      </div>
+      ></div>
       <LogoApex
         class="mb-14 h-auto w-60 [filter:drop-shadow(0_2px_6px_rgba(11,18,21,0.95))_drop-shadow(0_0_24px_rgba(11,18,21,0.8))] sm:w-72 md:w-80"
         role="img"
         aria-label="Apex Motors"
       />
 
-      <h1 class="text-balance text-center text-4xl font-light leading-[1.1] tracking-[-0.04em] [text-shadow:0_1px_2px_rgba(11,18,21,0.95),0_0_18px_rgba(11,18,21,0.85),0_0_42px_rgba(11,18,21,0.7)] sm:text-5xl md:text-7xl">
+      <h1 class="text-balance text-center text-2xl font-display leading-[1.2] [text-shadow:0_1px_2px_rgba(11,18,21,0.95),0_0_18px_rgba(11,18,21,0.85),0_0_42px_rgba(11,18,21,0.7)] sm:text-4xl md:text-5xl">
         El rendimiento automotriz en su forma más pura.
       </h1>
 
       <button
         type="button"
-        class="mt-10 cursor-pointer border border-apex-light/40 bg-apex-dark/70 px-8 py-3 text-[10px] uppercase tracking-widest backdrop-blur-md transition-colors duration-300 hover:border-apex-brand hover:bg-apex-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-apex-brand md:text-xs"
+        class="mt-10 cursor-pointer border border-apex-light/40 bg-apex-dark/70 px-8 py-3 font-aux font-medium text-[10px] uppercase tracking-widest backdrop-blur-md transition-colors duration-300 hover:border-apex-brand hover:bg-apex-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-apex-brand md:text-xs"
       >
         Descubrir la ingeniería
       </button>
@@ -41,9 +40,9 @@ import Hero3D from "../components/Hero3D";
   </section>
 
   <!-- Video Showcase Section -->
-  <section class="relative py-24 px-4 bg-apex-dark">
+  <section id="videos" class="relative py-24 px-4 bg-apex-dark lg:pr-28">
     <div class="max-w-7xl mx-auto">
-      <h2 class="text-4xl md:text-5xl font-bold text-center text-apex-light mb-16">
+      <h2 class="text-3xl md:text-4xl font-display text-center text-apex-light mb-16">
         Watch Our Story
       </h2>
 
@@ -54,16 +53,22 @@ import Hero3D from "../components/Hero3D";
           <div class="relative aspect-video bg-gradient-to-br from-apex-light/15 to-apex-light/5 flex items-center justify-center">
             <div class="text-center p-6">
               <div class="w-24 h-24 bg-apex-brand rounded-full flex items-center justify-center mx-auto mb-4 shadow-2xl">
-                <svg class="w-10 h-10 text-apex-light" fill="currentColor" viewBox="0 0 24 24">
+                <svg
+                  class="w-10 h-10 text-apex-light"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path d="M8 5v14l11-7z" />
                 </svg>
               </div>
-              <p class="text-apex-light/80">Main Showroom Video</p>
+              <p class="font-aux font-medium text-apex-light/80">Main Showroom Video</p>
             </div>
           </div>
           <div class="p-6">
-            <h3 class="text-2xl font-bold text-apex-light mb-2">Main Showroom</h3>
-            <p class="text-apex-light/60">
+            <h3 class="text-2xl font-display text-apex-light mb-2">
+              Main Showroom
+            </h3>
+            <p class="font-light text-apex-light/60">
               Explore our premium vehicle collection in an immersive
               environment.
             </p>
@@ -75,16 +80,22 @@ import Hero3D from "../components/Hero3D";
           <div class="relative aspect-video bg-gradient-to-br from-apex-light/15 to-apex-light/5 flex items-center justify-center">
             <div class="text-center p-6">
               <div class="w-24 h-24 bg-apex-brand rounded-full flex items-center justify-center mx-auto mb-4 shadow-2xl">
-                <svg class="w-10 h-10 text-apex-light" fill="currentColor" viewBox="0 0 24 24">
+                <svg
+                  class="w-10 h-10 text-apex-light"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path d="M8 5v14l11-7z" />
                 </svg>
               </div>
-              <p class="text-apex-light/80">Engine Detail Video</p>
+              <p class="font-aux font-medium text-apex-light/80">Engine Detail Video</p>
             </div>
           </div>
           <div class="p-6">
-            <h3 class="text-2xl font-bold text-apex-light mb-2">Engine Detail</h3>
-            <p class="text-apex-light/60">
+            <h3 class="text-2xl font-display text-apex-light mb-2">
+              Engine Detail
+            </h3>
+            <p class="font-light text-apex-light/60">
               Discover the engineering excellence behind our performance
               engines.
             </p>

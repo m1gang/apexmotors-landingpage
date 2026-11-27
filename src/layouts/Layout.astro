@@ -1,11 +1,19 @@
 ---
 import '../styles/global.css';
+import TotemNav from '../components/TotemNav.astro';
+import logoUrl from '../assets/svg/ISOTIPO 2.svg?url';
 
 interface Props {
   title: string;
 }
 
 const { title } = Astro.props;
+
+// TotemNav = única navegación (decisión del Navigator). El logo ES el enlace a
+// Inicio (logoHref); el menú lista las demás secciones. Se agregan aquí (H4, H5, H7).
+const totemItems = [
+  { label: 'Videos', href: '#videos', icon: '/icons/play.svg' },
+];
 ---
 
 <!DOCTYPE html>
@@ -17,11 +25,19 @@ const { title } = Astro.props;
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Zen+Dots&family=Exo+2:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
   </head>
   <body class="bg-apex-dark text-apex-light font-sans">
     <slot />
+    <TotemNav
+      logo={logoUrl}
+      logoAlt="Apex Motors"
+      logoHref="/"
+      logoLabel="Inicio"
+      items={totemItems}
+      side="right"
+    />
   </body>
 </html>
