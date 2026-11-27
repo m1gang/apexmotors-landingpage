@@ -25,6 +25,7 @@
 | H9 | Como visitante quiero momentos creativos (cursor custom, animaciones al scroll, tipografía oversized) para recordar la marca. | ⬜ se refina al elegirla |
 | H10 | Como visitante quiero una jerarquía tipográfica cuidada (familia, tamaños y espaciados consistentes) para leer cada sección con claridad y ritmo. | 🔄 séptima vuelta (vigente): Zen Dots (títulos) + Exo 2 (descripciones) + JetBrains Mono (auxiliar); h1 en caja normal; nube con `-z-10` — implementada y verificada, esperando revisión/commit del Navigator |
 | H11 | Componente `TotemNav.astro`: navegación flotante tipo píldora con logo que se expande en vertical con resorte y muestra hasta 5 iconos con etiquetas en hover. | ✅ aprobada por el Navigator ("perfecto") — es la nav única de la página; `VerticalNav` (H8) eliminado; items = secciones reales (Inicio, Videos) |
+| H12 | Como visitante quiero reconocer la pestaña del sitio entre otras (favicon con el isotipo) para identificar Apex Motors al instante. | 🔲 pendiente |
 
 ## Slices técnicas
 
@@ -156,3 +157,12 @@
 
 **Ronda 7 — refinamiento del Navigator (verbatim):** "regresa a ibm plex mono".
 **Acciones:** revertida la fuente auxiliar a **IBM Plex Mono 400/500** (Google Fonts + `--font-aux` con fallback mono + fallback del componente). Cero referencias a Plus Jakarta Sans en `src/`. Verificación: 29/29 PASS, build 2.47s. **Decisión de tipografía auxiliar cerrada: IBM Plex Mono 400/500.**
+
+
+## H12 — Favicon con el isotipo
+
+**Pedido del Navigator (verbatim):** "quiero que pongas el favicon el logo @'APEX MOTORS/src/assets/svg/ISOTIPO 1.svg' has este cambio".
+
+**Acciones:** `public/favicon.svg` = copia byte a byte de `ISOTIPO 1.svg` (glifo `#E1E7F5` sobre transparente; los assets de marca quedan intactos — re-sincronizar con `cp` si se re-exporta); `<link rel="icon" type="image/svg+xml" href="/favicon.svg" />` en `Layout.astro`; defaults del scaffold eliminados (`favicon.ico` de Astro y su `favicon.svg` viejo). **Verificación:** build OK; HTML servido contiene el link; `/favicon.svg` responde 200 `image/svg+xml` con el contenido del isotipo.
+
+**Abierto para el Navigator:** el glifo es casi blanco — sobre una pestaña de navegador en tema claro queda invisible. Opción si molesta: variante de favicon con placa oscura `#0B1215` detrás del glifo (es un artefacto derivado; no toca el asset de marca).
