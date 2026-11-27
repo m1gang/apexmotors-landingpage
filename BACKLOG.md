@@ -4,10 +4,32 @@
 > Cada historia es una entrega chiquita, probable y usable. Sin SDD, sin planificación en cascada.
 > El refinamiento (criterios de aceptación, plan mínimo, out of scope) se hace recién al elegir cada historia.
 
+## Definición de producto (decisión del Navigator)
+
+**Pedido (verbatim):** "primero definamos mejor las secciones que iran en la página tambien el rubro exacto de la página esta es una lading page para agregar a mi portafolio y todo el negocio es ficticio asi que quiero que me recomiendes a que enfocarlo y todo eso" → respuesta del Navigator: "1 A" y "2 me parece correcto las secciones".
+
+**Rubro elegido — Opción A: Atelier de performance / ingeniería a medida.** "Apex Motors" es un taller boutique de builds a medida (referentes del concepto: Singer, Brabus, Gunther Werks). Negocio 100% ficticio; el objetivo real de la página es ser una pieza de portafolio del Driver. Criterio: el rubro convierte los assets existentes en decisiones intencionales — el despiece del V8 (H3) es el argumento de venta ("así conocemos tu motor"), la paleta oscura+rosa es boutique premium, Zen Dots + IBM Plex Mono son ingeniería, y el copy vigente del hero ("El rendimiento automotriz en su forma más pura") ya es una frase de atelier. "Apex" = el ápice de la curva (automovilismo).
+
+**Mapa de secciones aprobado (orden de la página):**
+
+| # | Sección | Contenido | Historia |
+|---|---------|-----------|---------|
+| 1 | Hero (existe) | logo + copy + 3D + CTA | H1/H3 ✓ · CTA → H2 |
+| 2 | Manifiesto | frase oversized + manifiesto breve | H13 (tipografía oversized = momento creativo, H9) |
+| 3 | El proceso | despiece como storytelling: diagnóstico → blueprint → mecanizado → armado → dyno | H14 (se apoya en el GLB/despiece de H3) |
+| 4 | Obras | 3-4 builds ficticios en cards con cifras (HP, torque, tiempo) en mono | H15 |
+| 5 | Videos | showroom + detalle de motor, captions ES | H6 (existe como placeholders) |
+| 6 | Contacto | formulario + datos ficticios | H5 (falta destino de leads) |
+| 7 | Footer | contacto, redes, legales | H7 |
+
+**Re-encuadres que habilita esta decisión:** H2 se refina bajo el concepto atelier (propuesta del Driver pendiente de aprobación: CTA "Explorar el motor" = modo exploración del 3D; alternativa: scroll a Videos). H4 encaja como mini-configurador "tu motor" (en hero o proceso). TotemNav crece con las secciones reales (Inicio, Proceso, Obras, Videos, Contacto = 4 ítems + logo, dentro del máximo de 5).
+
+**Orden de construcción propuesto (a confirmar al elegir):** H2 → H14 (Proceso, reutiliza el GLB) → H13 (Manifiesto) → H15 (Obras) → H5 → H6 (captions ES + typo `grouprelative`) → H7 (Footer) → H9 (momentos creativos transversales al final).
+
 ## Sistema visual (fijado por Navigator)
 
 - **Colores primordiales (si o si):** `#B83A5E` (rosa de marca) · `#E1E7F5` (claro) · `#0B1215` (fondo oscuro). Nada de negro puro ni blanco puro: el oscuro es `#0B1215` y el claro es `#E1E7F5`.
-- **Tipografía:** Inter (el detector de diseño la marca como sobreusada; revisable como decisión de marca).
+- **Tipografía (cerrada, H10+H11-r7):** Zen Dots 400 (títulos, peso único) · Exo 2 300-500 (cuerpo) · IBM Plex Mono 400-500 (auxiliar: CTA, captions, labels).
 - **Layout:** no tradicional — navegación **vertical** (no horizontal) y momentos creativos.
 
 ## Historias de Usuario
@@ -23,9 +45,12 @@
 | H7 | Como visitante quiero un footer con contacto, redes y legales para tener todas las vías al pie. | ⬜ |
 | H8 | Como visitante quiero una navegación vertical no convencional para sentir que la marca es audaz y distinta. | ✔️→H11 implementada como riel vertical (patrón A); el Navigator luego eligió TotemNav como nav única — `VerticalNav.astro` eliminado |
 | H9 | Como visitante quiero momentos creativos (cursor custom, animaciones al scroll, tipografía oversized) para recordar la marca. | ⬜ se refina al elegirla |
-| H10 | Como visitante quiero una jerarquía tipográfica cuidada (familia, tamaños y espaciados consistentes) para leer cada sección con claridad y ritmo. | 🔄 séptima vuelta (vigente): Zen Dots (títulos) + Exo 2 (descripciones) + JetBrains Mono (auxiliar); h1 en caja normal; nube con `-z-10` — implementada y verificada, esperando revisión/commit del Navigator |
-| H11 | Componente `TotemNav.astro`: navegación flotante tipo píldora con logo que se expande en vertical con resorte y muestra hasta 5 iconos con etiquetas en hover. | ✅ aprobada por el Navigator ("perfecto") — es la nav única de la página; `VerticalNav` (H8) eliminado; items = secciones reales (Inicio, Videos) |
-| H12 | Como visitante quiero reconocer la pestaña del sitio entre otras (favicon con el isotipo) para identificar Apex Motors al instante. | 🔲 pendiente |
+| H10 | Como visitante quiero una jerarquía tipográfica cuidada (familia, tamaños y espaciados consistentes) para leer cada sección con claridad y ritmo. | ✅ commit `f2cc5e7` (7 vueltas; auxiliar quedó IBM Plex Mono por H11-r5/r7) |
+| H11 | Componente `TotemNav.astro`: navegación flotante tipo píldora con logo que se expande en vertical con resorte y muestra hasta 5 iconos con etiquetas en hover. | ✅ commit `f2cc5e7` (7 rondas) — nav única; logo = botón Inicio (ISOTIPO 2, scroll al hero sin recargar); menú solo con secciones (hoy: Videos) |
+| H12 | Como visitante quiero reconocer la pestaña del sitio entre otras (favicon con el isotipo) para identificar Apex Motors al instante. | ✅ commit `ae70594` (abierto: glifo claro invisible en tema claro — variante con placa oscura a decisión del Navigator) |
+| H13 | Como visitante quiero una declaración de intenciones contundente (manifiesto) para entender la filosofía de la marca en segundos. | ⬜ nueva por definición de producto |
+| H14 | Como visitante quiero ver el proceso de construcción paso a paso para confiar en la precisión del atelier. | ⬜ nueva por definición de producto |
+| H15 | Como visitante quiero ver trabajos terminados del atelier (builds ficticios con cifras) para evaluar su nivel. | ⬜ nueva por definición de producto |
 
 ## Slices técnicas
 
